@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asset Status</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      font-family: 'Merriweather', serif;
+      background-color: #f9f9f9;
+      padding: 2rem;
+    }
+    h2 {
+      text-align: center;
+      color: #1b1f3b;
+      margin-bottom: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 3rem;
+    }
+    th, td {
+      padding: 1rem;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #1b1f3b;
+      color: #fff;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    .return-btn {
+      background-color: #2196f3;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .return-btn:hover {
+      background-color: #0b7dda;
+    }
+    .nav-tabs {
+      margin-bottom: 2rem;
+    }
+    .nav-tabs .nav-link {
+      color: #1b1f3b;
+      font-weight: bold;
+    }
+    .nav-tabs .nav-link.active {
+      color: #2196f3;
+      border-bottom: 3px solid #2196f3;
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="container">
+    <h2>Asset Management Status</h2>
+
+    <ul class="nav nav-tabs" id="assetTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">Pending Approval Requests</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="borrowed-tab" data-bs-toggle="tab" data-bs-target="#borrowed" type="button" role="tab">Borrowed Assets</button>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="assetTabsContent">
+      <!-- Pending Requests Tab -->
+      <div class="tab-pane fade show active" id="pending" role="tabpanel">
+        <table>
+          <thead>
+            <tr>
+              <th>Asset ID</th>
+              <th>Asset Name</th>
+              <th>Borrowed By</th>
+              <th>Borrow Date</th>
+              <th>Return Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="pendingTable">
+            <tr>
+              <td colspan="7">Loading pending requests...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Borrowed Assets Tab -->
+      <div class="tab-pane fade" id="borrowed" role="tabpanel">
+        <table>
+          <thead>
+            <tr>
+              <th>Asset ID</th>
+              <th>Asset Name</th>
+              <th>Borrowed By</th>
+              <th>Borrow Date</th>
+              <th>Return Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="borrowedTable">
+            <tr>
+              <td colspan="6">Loading borrowed assets...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Fetch pending approval requests
+    async function fetchPendingRequests() {
+      const table = document.getElementById('pendingTable');
+      table.innerHTML = '<tr><td colspan="7">Loading...</td></tr>';
+
+      try {
+        const res = await fetch('/approvalsRequests');
+        const data = await res.json();
+
+        if (!data.length) {
+          table.innerHTML = '<tr><td colspan="7">No pending approval requests.</td></tr>';
+          return;
+        }
+
+        table.innerHTML = '';
+        data.forEach(item => {
+          const borrowDate = item.borrow_date ? item.borrow_date.split('T')[0] : '-';
+          const returnDate = item.return_date ? item.return_date.split('T')[0] : '-';
+          table.innerHTML += `
+            <tr>
+              <td>${item.asset_id}</td>
+              <td>${item.asset_name}</td>
+              <td>${item.borrower}</td>
+              <td>${borrowDate}</td>
+              <td>${returnDate}</td>
+              <td>${item.request_status}</td>
+              <td>
+                <button class="btn btn-sm btn-success" onclick="approveRequest(${item.request_id})">Approve</button>
+                <button class="btn btn-sm btn-danger" onclick="rejectRequest(${item.request_id})">Reject</button>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        table.innerHTML = '<tr><td colspan="7">Error loading data.</td></tr>';
+        console.error(err);
+      }
+    }
+
+    // Fetch borrowed assets
+    async function fetchBorrowedAssets() {
+      const table = document.getElementById('borrowedTable');
+      table.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+
+      try {
+        const res = await fetch('/history');
+        const data = await res.json();
+        const borrowed = data.filter(item => item.status === 'borrowed');
+
+        if (!borrowed.length) {
+          table.innerHTML = '<tr><td colspan="6">No borrowed assets found.</td></tr>';
+          return;
+        }
+
+        table.innerHTML = '';
+        borrowed.forEach(item => {
+          table.innerHTML += `
+            <tr>
+              <td>${item.asset_id}</td>
+              <td>${item.asset_name}</td>
+              <td>${item.borrower}</td>
+              <td>${item.borrow_date.split('T')[0]}</td>
+              <td>${item.return_date.split('T')[0]}</td>
+              <td>
+                <button class="return-btn" onclick="markAsReturned('${item.asset_id}', '${item.student_id}')">
+                  Mark Returned
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        table.innerHTML = '<tr><td colspan="6">Error loading data.</td></tr>';
+        console.error(err);
+      }
+    }
+
+    // Approve request
+    async function approveRequest(requestId) {
+      try {
+        const res = await fetch(`/borrow-request/${requestId}/approve`, {
+          method: 'PUT'
+        });
+        
+        if (!res.ok) throw new Error(await res.text());
+        
+        Swal.fire("Approved", "Request has been approved.", "success");
+        fetchPendingRequests();
+      } catch (err) {
+        Swal.fire("Error", err.message, "error");
+      }
+    }
+
+    // Reject request
+    async function rejectRequest(requestId) {
+      try {
+        const res = await fetch(`/borrow-request/${requestId}/reject`, {
+          method: 'PUT'
+        });
+        
+        if (!res.ok) throw new Error(await res.text());
+        
+        Swal.fire("Rejected", "Request has been rejected.", "info");
+        fetchPendingRequests();
+      } catch (err) {
+        Swal.fire("Error", err.message, "error");
+      }
+    }
+
+    // Mark asset as returned
+    async function markAsReturned(assetId, studentId) {
+      try {
+        const res = await fetch('/mark-returned', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ asset_id: assetId, student_id: studentId })
+        });
+
+        if (!res.ok) throw new Error('Return failed');
+
+        Swal.fire('Success', 'Asset marked as returned.', 'success');
+        fetchBorrowedAssets();
+      } catch (err) {
+        Swal.fire('Error', 'Could not mark as returned.', 'error');
+        console.error(err);
+      }
+    }
+
+    // Load data when tabs are clicked
+    document.getElementById('pending-tab').addEventListener('click', fetchPendingRequests);
+    document.getElementById('borrowed-tab').addEventListener('click', fetchBorrowedAssets);
+
+    // Load initial data
+    fetchPendingRequests();
+    fetchBorrowedAssets();
+  </script>
+</body>
+</html>

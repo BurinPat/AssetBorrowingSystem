@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Management - Separate Tables</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Merriweather', serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8;
+            color: #1b1f3b;
+        }
+        .nav-link:hover {
+            color: #4caf50 !important; /* Green */
+        }
+        .navbar {
+            background-color: #1b1f3b !important;
+            /* Navy blue */
+        }
+        .nav-link {
+            font-size: 18px; /* Increased font size */
+            margin-right: 20px; /* Added spacing between links */
+        }
+        .navbar-brand,
+        .nav-link {
+            color: white !important;
+        }
+        section {
+            margin: 40px auto;
+            width: 80%;
+            background: #ffffff;
+            padding: 30px;
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #1b1f3b;
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #1b1f3b;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            background: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #1b1f3b;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            text-align: center;
+            font-size: 16px;
+            color: #1b1f3b;
+        }
+
+        th {
+            background: #1b1f3b;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #e3e6ed;
+        }
+
+        button {
+            padding: 12px 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        button:hover:not(:disabled) {
+            opacity: 0.85;
+            transform: scale(1.05);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .borrow {
+            background-color: #4caf50;
+            /* Green for borrow */
+        }
+
+        .return {
+            background-color: #b71c1c;
+            /* Red for return */
+        }
+
+        .delete {
+            background-color: red;
+        }
+
+        .badge {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .badge-available {
+            background-color: #4caf50;
+            /* Green for available */
+        }
+
+        .badge-borrowed {
+            background-color: #1b1f3b;
+            /* Navy blue for borrowed */
+        }
+
+        .badge-pending {
+            background-color: #ff9800;
+            /* Orange for pending */
+        }
+
+        .badge-approved {
+            background-color: #4caf50;
+            /* Green for approved */
+        }
+                /* Custom SweetAlert2 styling */
+                .swal2-popup {
+            border-radius: 12px !important;
+            padding: 30px !important;
+            /* Add more space inside the modal */
+        }
+
+        .swal2-title {
+            margin-top: 20px !important;
+            /* Add more space above the title */
+            margin-bottom: 30px !important;
+            /* Add more space below the title */
+            font-size: 24px !important;
+            /* Increase font size for better readability */
+        }
+
+        .swal2-actions {
+            margin-top: 20px !important;
+            /* Add more space above the buttons */
+            gap: 20px;
+            /* Add space between buttons */
+        }
+
+        /* Custom button styling */
+        .swal2-confirm {
+            background-color: #2196F3 !important;
+            /* Light blue for "Yes" button */
+            border: none;
+            padding: 10px 20px !important;
+            /* Add padding to buttons */
+            font-size: 16px !important;
+            /* Increase font size */
+        }
+
+        .swal2-cancel {
+            background-color: #4CAF50 !important;
+            /* Green for "Cancel" button */
+            border: none;
+            padding: 10px 20px !important;
+            /* Add padding to buttons */
+            font-size: 16px !important;
+            /* Increase font size */
+        }
+
+        .swal2-confirm:hover {
+            background-color: #1e88e5 !important;
+            /* Darker light blue on hover */
+        }
+
+        .swal2-cancel:hover {
+            background-color: #45a049 !important;
+            /* Darker green on hover */
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="">Asset Borrowing System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/welcome/Student">Assets</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/hist/Student">History</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/pending/Student">Status</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <div class="text-white mx-3">Welcome , <span id="userrole">User</span></div>
+                    <button class="btn btn-danger" onclick="Logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Borrowed Assets Table -->
+    <section>
+        <h2>Borrowed Assets</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Asset ID</th>
+                    <th>Asset Name</th>
+                    <th>Borrowed By</th>
+                    <th>Borrow Date</th>
+                    <th>Return Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tbborrowreq">
+            </tbody>
+        </table>
+    </section>
+    <script>
+        let user_id, username, role;
+
+        async function getData() {
+            try {
+                const res = await fetch('/session');
+                if (!res.ok) throw new Error("Not logged in");
+
+                const session = await res.json();
+                user_id = session.user_id;
+                username = session.username;
+                role = session.role;
+
+                borrowrequest();
+            } catch (err) {
+                console.error("Session error:", err);
+            }
+        }
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toISOString().split('T')[0];
+        }
+        getData();
+        async function borrowrequest() {
+            try {
+                const response = await fetch(`/borrow-request/student/${user_id}`);
+                if (!response.ok) throw new Error('No request found');
+
+                const result = await response.json(); // This is an array
+                let row = '';
+
+                for (const request of result) {
+                    if (request.status === "pending") {
+                        row += `<tr> 
+                    <td>${request.asset_id}</td>
+                    <td>${request.name}</td>
+                    <td>${request.username}</td>
+                    <td>${formatDate(request.borrow_date)}</td>
+                    <td>${formatDate(request.return_date)}</td>
+                    <td><span class="status-available">${request.status}</span></td>
+                    <td><button class="btn btn-danger" onclick="cancelBorrowrequest(${request.request_id})">Cancel</button></td>
+                </tr>`;
+                    }
+
+                 }
+
+                document.querySelector('#tbborrowreq').innerHTML = row;
+            } catch (err) {
+                console.error("Fetch Error:", err);
+                alert(err.message);
+            }
+        }
+
+
+        async function cancelBorrowrequest(requestId) {
+            Swal.fire({
+                title: "Do you want to cancel this borrow request?",
+                showCancelButton: true,
+                confirmButtonText: "Yes",
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+        const res = await fetch(`/borrow-request/${requestId}/cancel`, {
+          method: 'PUT'
+        });
+        
+        if (!res.ok) throw new Error(await res.text());
+        
+        Swal.fire("Canceled", "Request has been canceled.", "info");
+        borrowrequest();
+      } catch (err) {
+        Swal.fire("Error", err.message, "error");
+      }
+                }
+            });
+        }
+        function Logout() {
+        Swal.fire({
+            title: "Do you want to Sign out",
+            showCancelButton: true,
+            confirmButtonText: "Yes",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.replace('/logout');
+            }
+        });
+    }
+async function getData() {
+        try {
+            const res = await fetch('/session');
+            if (!res.ok) throw new Error("Not logged in");
+
+            const session = await res.json();
+            user_id = session.user_id;
+            username = session.username;
+            role = session.role;
+
+            document.getElementById('userrole').textContent = username;
+        } catch (err) {
+            console.error("Session error:", err);
+        }
+    }
+    getData();
+
+    </script>
+</body>
+
+</html>

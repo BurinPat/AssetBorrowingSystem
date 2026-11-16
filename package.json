@@ -1,0 +1,21 @@
+{
+  "name": "webproj",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "memorystore": "^1.6.7",
+    "mysql2": "^3.14.0",
+    "node.js": "^0.0.1-security",
+    "nodemon": "^3.1.9"
+  }
+}

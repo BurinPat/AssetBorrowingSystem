@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Merriweather', serif;
+            margin: 0;
+            padding: 0;
+            background: white;
+            /* Changed background to white */
+            color: #1b1f3b;
+        }
+        .nav-link:hover {
+            color: #4caf50 !important; /* Green */
+        }
+        .navbar {
+            background-color: #1b1f3b !important;
+            /* Navy blue */
+        }
+        .nav-link {
+            font-size: 18px; /* Increased font size */
+            margin-right: 20px; /* Added spacing between links */
+        }
+        .navbar-brand,
+        .nav-link {
+            color: white !important;
+        }
+
+        .table {
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #ffffff;
+            /* White table background */
+        }
+
+        /* Custom CSS for table header and data */
+        .table thead th {
+            font-size: 1.2rem;
+            /* Bigger font size for table header */
+            background-color: #001f3f;
+            /* Navy blue table header */
+            color: #ffffff;
+            /* White text */
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            /* Vertically center table data */
+            font-size: 1rem;
+            color: #001f3f;
+            /* Navy blue text */
+            padding: 1rem;
+        }
+
+        /* Custom CSS for status buttons */
+        .status-available {
+            background-color: green;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .status-borrowed {
+            background-color: #ff6b6b;
+            /* Light red */
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .status-pending {
+    background-color: #ff9800; /* orange */
+    color: white;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+.status-disabled {
+    background-color: #9e9e9e; /* gray */
+    color: white;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+.status-unknown {
+    background-color: #607d8b; /* blue-gray */
+    color: white;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+                /* Custom SweetAlert2 styling */
+                .swal2-popup {
+            border-radius: 12px !important;
+            padding: 30px !important;
+            /* Add more space inside the modal */
+        }
+
+        .swal2-title {
+            margin-top: 20px !important;
+            /* Add more space above the title */
+            margin-bottom: 30px !important;
+            /* Add more space below the title */
+            font-size: 24px !important;
+            /* Increase font size for better readability */
+        }
+
+        .swal2-actions {
+            margin-top: 20px !important;
+            /* Add more space above the buttons */
+            gap: 20px;
+            /* Add space between buttons */
+        }
+
+        /* Custom button styling */
+        .swal2-confirm {
+            background-color: #2196F3 !important;
+            /* Light blue for "Yes" button */
+            border: none;
+            padding: 10px 20px !important;
+            /* Add padding to buttons */
+            font-size: 16px !important;
+            /* Increase font size */
+        }
+
+        .swal2-cancel {
+            background-color: #4CAF50 !important;
+            /* Green for "Cancel" button */
+            border: none;
+            padding: 10px 20px !important;
+            /* Add padding to buttons */
+            font-size: 16px !important;
+            /* Increase font size */
+        }
+
+        .swal2-confirm:hover {
+            background-color: #1e88e5 !important;
+            /* Darker light blue on hover */
+        }
+
+        .swal2-cancel:hover {
+            background-color: #45a049 !important;
+            /* Darker green on hover */
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <div id="assetManagement"></div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/welcome/Student">Assets</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/hist/Student">History</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/pending/Student">Status</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <div class="text-white mx-3">Welcome , <span id="userrole">User</span></div>
+                    <button class="btn btn-danger" onclick="Logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mb-0">Asset List</h1>
+            <div class="input-group w-50">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search by name or category..." />
+                <button class="btn btn-outline-primary" onclick="filterAssets()">Search</button>
+            </div>
+        </div>
+        
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody id="tblAsset">
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/public/js/assets.js"></script>
+</body>
+
+</html>

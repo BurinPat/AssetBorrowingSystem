@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      font-family: 'Merriweather', serif;
+      margin: 0;
+      padding: 0;
+      background: white;
+      color: #1b1f3b;
+    }
+
+    .navbar {
+      background-color: #1b1f3b !important;
+    }
+
+    .navbar-brand,
+    .nav-link {
+      color: white !important;
+    }
+
+    .nav-link {
+      font-size: 18px;
+      margin-right: 20px;
+    }
+
+    .nav-link:hover {
+      color: #4caf50 !important;
+    }
+
+    .table {
+      margin-top: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: #ffffff;
+    }
+
+    .table thead th {
+      background-color: #001f3f;
+      color: #ffffff;
+      font-size: 1.1rem;
+      padding: 1rem;
+      text-align: left;
+    }
+
+    .table tbody td {
+      padding: 1rem;
+      vertical-align: middle;
+      font-size: 1rem;
+      color: #001f3f;
+    }
+
+    .btn-danger:hover {
+      background-color: #9c1a1a;
+    }
+
+    .card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .card.bg-primary {
+      background-color: #2196F3 !important;
+    }
+
+    .card.bg-success {
+      background-color: #4CAF50 !important;
+    }
+
+    .card.bg-warning {
+      background-color: #FFEB3B !important;
+      color: #1b1f3b;
+    }
+
+    .card.bg-secondary {
+      background-color: #EF5350 !important;
+    }
+
+    h2 {
+      text-align: center;
+      color: #1b1f3b;
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      border-bottom: 3px solid #1b1f3b;
+      padding-bottom: 10px;
+    }
+
+    .swal2-popup {
+      border-radius: 12px !important;
+      padding: 30px !important;
+    }
+
+    .swal2-title {
+      margin-top: 20px !important;
+      margin-bottom: 30px !important;
+      font-size: 24px !important;
+    }
+
+    .swal2-actions {
+      margin-top: 20px !important;
+      gap: 20px;
+    }
+
+    .swal2-confirm {
+      background-color: #2196F3 !important;
+      border: none;
+      padding: 10px 20px !important;
+      font-size: 16px !important;
+    }
+
+    .swal2-cancel {
+      background-color: #4CAF50 !important;
+      border: none;
+      padding: 10px 20px !important;
+      font-size: 16px !important;
+    }
+
+    .swal2-confirm:hover {
+      background-color: #1e88e5 !important;
+    }
+
+    .swal2-cancel:hover {
+      background-color: #45a049 !important;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <div id="assetManagement">
+        <a class="navbar-brand" href="">Asset Borrowing System</a>
+      </div>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="/welcome/Lecturer">Assets</a></li>
+          <li class="nav-item"><a class="nav-link" href="/dash/Lecturer">History</a></li>
+          <li class="nav-item"><a class="nav-link" href="/pending/Lecturer">Status</a></li>
+        </ul>
+        <div class="d-flex align-items-center">
+          <div class="text-white mx-3">Welcome , <span id="Userrole">User</span></div>
+          <button class="btn btn-danger" onclick="Logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dashboard Cards -->
+  <div class="container mt-4" id="dashboard">
+    <h2>Dashboard</h2>
+    <div class="row">
+      <!-- Total Borrowed Assets -->
+      <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Total Borrowed Assets</h5>
+            <p class="card-text" id="borrowedAssets">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Available Assets -->
+      <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Available Assets</h5>
+            <p class="card-text" id="availableAssets">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Requests -->
+      <div class="col-md-3">
+        <div class="card bg-warning mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Pending Requests</h5>
+            <p class="card-text" id="pendingRequests">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disabled Assets -->
+      <div class="col-md-3">
+        <div class="card text-white bg-secondary mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Disabled Assets</h5>
+            <p class="card-text" id="disabledAssets">0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Table -->
+  <div class="container mt-4">
+    <h2>My Borrowing & Returning History</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Product Name</th>
+          <th>Borrowed Date</th>
+          <th>Returned Date</th>
+          <th>Borrower</th>
+          <th>Approved By</th>
+        </tr>
+      </thead>
+      <tbody id="borrowHistory"></tbody>
+    </table>
+  </div>
+
+  <script>
+    let user_id, username, role;
+
+    async function getSessionData() {
+      try {
+        const res = await fetch('/session');
+        if (!res.ok) throw new Error("Not logged in");
+
+        const session = await res.json();
+        user_id = session.user_id;
+        username = session.username;
+        role = session.role;
+
+        document.getElementById('Userrole').textContent = username;
+        fetchHistory();
+        loadDashboardStats();
+      } catch (err) {
+        console.error("Session error:", err);
+        Swal.fire('Session Error', 'Please login again.', 'error').then(() => location.href = '/');
+      }
+    }
+
+    async function fetchHistory() {
+      try {
+        const res = await fetch(`/history/approver/${user_id}`);
+        const data = await res.json();
+
+        const tableBody = document.getElementById("borrowHistory");
+        tableBody.innerHTML = '';
+        data.forEach(item => {
+          tableBody.innerHTML += `
+            <tr>
+              <td>${item.asset_name}</td>
+              <td>${formatDate(item.borrow_date)}</td>
+              <td>${formatDate(item.return_date)}</td>
+              <td>${item.student_name}</td>
+              <td>${username}</td>
+            </tr>`;
+        });
+      } catch (error) {
+        console.error("Error fetching history:", error);
+      }
+    }
+
+    async function loadDashboardStats() {
+      try {
+        const res = await fetch('/statusCount');
+        if (!res.ok) throw new Error("Failed to fetch dashboard data");
+
+        const data = await res.json();
+        let stats = { borrowed: 0, available: 0, pending: 0, disabled: 0 };
+
+        data.forEach(item => {
+          stats[item.status] = item.count;
+        });
+
+        document.getElementById("borrowedAssets").textContent = stats["borrowed"] || 0;
+        document.getElementById("availableAssets").textContent = stats["available"] || 0;
+        document.getElementById("pendingRequests").textContent = stats["pending"] || 0;
+        document.getElementById("disabledAssets").textContent = stats["disabled"] || 0;
+      } catch (err) {
+        console.error("Dashboard load error:", err);
+        Swal.fire("Error", "Unable to load dashboard statistics.", "error");
+      }
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return '-';
+      const date = new Date(dateString);
+      return date.toISOString().split('T')[0];
+    }
+
+    function Logout() {
+      Swal.fire({
+        title: "Do you want to Sign out?",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+        cancelButtonText: "Cancel",
+      }).then((result) => {
+        if (result.isConfirmed) location.href = '/logout';
+      });
+    }
+
+    getSessionData();
+  </script>
+</body>
+
+</html>

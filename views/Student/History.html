@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Merriweather', serif;
+            margin: 0;
+            padding: 0;
+            background: white;
+            /* Changed background to white */
+            color: #1b1f3b;
+        }
+
+        .navbar {
+            background-color: #1b1f3b !important;
+            /* Navy blue */
+        }
+
+        .navbar-brand,
+        .nav-link {
+            color: white !important;
+        }
+
+        .nav-link {
+            font-size: 18px;
+            /* Increased font size */
+            margin-right: 20px;
+            /* Added spacing between links */
+        }
+
+        .nav-link:hover {
+            color: #4caf50 !important;
+            /* Green */
+        }
+
+        /* Table Styles */
+        .table {
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #ffffff;
+            /* White table background */
+        }
+
+        .table thead th {
+            background-color: #001f3f;
+            /* Navy blue table header */
+            color: #ffffff;
+            /* White text */
+            font-size: 1.1rem;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            font-size: 1rem;
+            color: #001f3f;
+            /* Navy blue text */
+        }
+
+
+        .btn-danger:hover {
+            background-color: #9c1a1a;
+            /* Darker red */
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card.bg-primary {
+            background-color: #2196F3 !important;
+            /* Light blue */
+        }
+
+        .card.bg-success {
+            background-color: #4CAF50 !important;
+            /* Green */
+        }
+
+        .card.bg-warning {
+            background-color: #FFEB3B !important;
+            /* Pale yellow */
+            color: #1b1f3b;
+            /* Dark text for better contrast */
+        }
+
+        .card.bg-secondary {
+            background-color: #EF5350 !important;
+            /* Light red */
+        }
+
+        h2 {
+            text-align: center;
+            color: #1b1f3b;
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #1b1f3b;
+            padding-bottom: 10px;
+        }
+
+        /* Custom SweetAlert2 styling */
+        .swal2-popup {
+            border-radius: 12px !important;
+            padding: 30px !important;
+            /* Add more space inside the modal */
+        }
+
+        .swal2-title {
+            margin-top: 20px !important;
+            /* Add more space above the title */
+            margin-bottom: 30px !important;
+            /* Add more space below the title */
+            font-size: 24px !important;
+            /* Increase font size for better readability */
+        }
+
+        .swal2-actions {
+            margin-top: 20px !important;
+            /* Add more space above the buttons */
+            gap: 20px;
+            /* Add space between buttons */
+        }
+
+        /* Custom button styling */
+        .swal2-confirm {
+            background-color: #2196F3 !important;
+            /* Light blue for "Yes" button */
+            border: none;
+            padding: 10px 20px !important;
+            /* Add padding to buttons */
+            font-size: 16px !important;
+            /* Increase font size */
+        }
+
+        .swal2-cancel {
+            background-color: #4CAF50 !important;
+            /* Green for "Cancel" button */
+            border: none;
+            padding: 10px 20px !important;
+            /* Add padding to buttons */
+            font-size: 16px !important;
+            /* Increase font size */
+        }
+
+        .swal2-confirm:hover {
+            background-color: #1e88e5 !important;
+            /* Darker light blue on hover */
+        }
+
+        .swal2-cancel:hover {
+            background-color: #45a049 !important;
+            /* Darker green on hover */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <div id="assetManagement"></div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/welcome/Student">Assets</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/hist/Student">History</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/pending/Student">Status</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <div class="text-white mx-3">Welcome, <span id="Userrole">User</span></div>
+                    <button class="btn btn-danger" onclick="Logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <h2>My Borrowing & Returning History</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Borrowed Date</th>
+                    <th>Returned Date</th>
+                    <th>Status</th>
+                    <th>Borrower</th>
+                    <th>Approved By</th>
+                </tr>
+            </thead>
+            <tbody id="borrowHistory">
+                <!-- Data will be added dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="/public/js/History.js"></script>
+</body>
+
+</html>

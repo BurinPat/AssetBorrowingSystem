@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Merriweather', serif;
+            background: white;
+            color: #1b1f3b;
+        }
+
+        .nav-link:hover {
+            color: #4caf50 !important;
+        }
+
+        .navbar {
+            background-color: #1b1f3b !important;
+        }
+
+        .nav-link {
+            font-size: 18px;
+            margin-right: 20px;
+        }
+
+        .navbar-brand,
+        .nav-link {
+            color: white !important;
+        }
+
+        .table {
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+
+        .table thead th {
+            font-size: 1.2rem;
+            background-color: #001f3f;
+            color: #ffffff;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            font-size: 1rem;
+            color: #001f3f;
+            padding: 1rem;
+        }
+
+       /* Custom CSS for status buttons */
+       .status-available {
+            background-color: green;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .status-borrowed {
+            background-color: #ff6b6b;
+            /* Light red */
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .status-pending {
+    background-color: #ff9800; /* orange */
+    color: white;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+.status-disabled {
+    background-color: #9e9e9e; /* gray */
+    color: white;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+.status-unknown {
+    background-color: #607d8b; /* blue-gray */
+    color: white;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+        .swal2-popup {
+            border-radius: 12px !important;
+            padding: 30px !important;
+        }
+
+        .swal2-title {
+            margin-top: 20px !important;
+            margin-bottom: 30px !important;
+            font-size: 24px !important;
+        }
+
+        .swal2-actions {
+            margin-top: 20px !important;
+            gap: 20px;
+        }
+
+        .swal2-confirm {
+            background-color: #2196F3 !important;
+            border: none;
+            padding: 10px 20px !important;
+            font-size: 16px !important;
+        }
+
+        .swal2-cancel {
+            background-color: #4CAF50 !important;
+            border: none;
+            padding: 10px 20px !important;
+            font-size: 16px !important;
+        }
+
+        .swal2-confirm:hover {
+            background-color: #1e88e5 !important;
+        }
+
+        .swal2-cancel:hover {
+            background-color: #45a049 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="">Asset Borrowing System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/welcome/Staff">Assets</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dash/Staff">History</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/pending/Staff">Status</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <div class="text-white mx-3">Welcome , <span id="userrole">User</span></div>
+                    <button class="btn btn-danger" onclick="Logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Asset List</h1>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <button class="btn btn-success" onclick="openAddModal()">+ Add Asset</button>
+            <div class="input-group w-50">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search by name or category..." />
+                <button class="btn btn-outline-primary" onclick="filterAssets()">Search</button>
+            </div>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tblAsset">
+                <!-- JS will populate this -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal: Add/Edit Asset -->
+    <div class="modal fade" id="assetModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assetModalTitle">Add Asset</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="assetForm">
+                        <input type="hidden" id="assetId" />
+                        <div class="mb-3">
+                            <label for="assetName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="assetName" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="assetCategory" class="form-label">Category</label>
+                            <input type="text" class="form-control" id="assetCategory" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="assetStatus" class="form-label">Status</label>
+                            <select class="form-control" id="assetStatus">
+                                <option value="Available">Available</option>
+                                <option value="disabled">Disabled</option>
+                            </select>
+                        </div>                        
+                        <div class="mb-3">
+                            <label for="assetDescription" class="form-label">Description</label>
+                            <input type="text" class="form-control" id="assetDescription" />
+                        </div>                        
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let allAssets = [];
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchAssets();
+
+            document.getElementById("assetForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+                const assetId = document.getElementById("assetId").value;
+                assetId ? updateAsset(assetId) : addAsset();
+            });
+        });
+
+        function fetchAssets() {
+            fetch("/assets")
+                .then(res => res.json())
+                .then(data => {
+                    allAssets = data;
+                    renderAssetTable(data);
+                })
+                .catch(error => console.error("Error loading assets:", error));
+        }
+
+        function renderAssetTable(data) {
+            const tbl = document.getElementById("tblAsset");
+            tbl.innerHTML = "";
+
+            data.forEach(asset => {
+                const row = document.createElement("tr");
+
+                let statusClass = '';
+                switch (asset.status.toLowerCase()) {
+                    case 'available': statusClass = 'status-available'; break;
+                    case 'borrowed': statusClass = 'status-borrowed'; break;
+                    case 'pending': statusClass = 'status-pending'; break;
+                    case 'disabled': statusClass = 'status-disabled'; break;
+                    default: statusClass = 'status-unknown';
+                }
+
+                row.innerHTML = `
+                    <td>${asset.asset_id}</td>
+                    <td>${asset.name}</td>
+                    <td>${asset.category}</td>
+                    <td><span class="${statusClass}">${asset.status}</span></td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="openEditModal(${asset.asset_id}, '${asset.name}', '${asset.category}', '${asset.status}', \`${asset.description || ''}\`)">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="confirmDelete(${asset.asset_id})">Delete</button>
+                    </td>
+                `;
+                tbl.appendChild(row);
+            });
+        }
+
+        function filterAssets() {
+            const keyword = document.getElementById("searchInput").value.toLowerCase();
+            if (!keyword) return renderAssetTable(allAssets);
+
+            const filtered = allAssets.filter(asset =>
+                asset.name.toLowerCase().includes(keyword) ||
+                asset.category.toLowerCase().includes(keyword)
+            );
+            renderAssetTable(filtered);
+        }
+
+        function openAddModal() {
+            document.getElementById("assetId").value = "";
+            document.getElementById("assetName").value = "";
+            document.getElementById("assetCategory").value = "";
+            document.getElementById("assetStatus").value = "Available";
+            document.getElementById("assetDescription").value = "";
+            document.getElementById("assetModalTitle").textContent = "Add Asset";
+            new bootstrap.Modal(document.getElementById("assetModal")).show();
+        }
+
+        function openEditModal(id, name, category, status, description) {
+            document.getElementById("assetId").value = id;
+            document.getElementById("assetName").value = name;
+            document.getElementById("assetCategory").value = category;
+            document.getElementById("assetStatus").value = status.toLowerCase() === "available" ? "Available" : "disabled";
+            document.getElementById("assetDescription").value = description;
+            document.getElementById("assetModalTitle").textContent = "Edit Asset";
+            new bootstrap.Modal(document.getElementById("assetModal")).show();
+        }
+
+        function addAsset() {
+            const name = document.getElementById("assetName").value;
+            const category = document.getElementById("assetCategory").value;
+            const status = document.getElementById("assetStatus").value;
+            const description = document.getElementById("assetDescription").value;
+
+            fetch("/addAssets", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, category, status, description })
+            }).then(() => {
+                fetchAssets();
+                bootstrap.Modal.getInstance(document.getElementById("assetModal")).hide();
+            }).catch(err => console.error("Add asset failed:", err));
+        }
+
+        function updateAsset(id) {
+            const name = document.getElementById("assetName").value;
+            const category = document.getElementById("assetCategory").value;
+            const status = document.getElementById("assetStatus").value;
+            const description = document.getElementById("assetDescription").value;
+
+            fetch(`/editAssets/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, category, status, description })
+            }).then(() => {
+                fetchAssets();
+                bootstrap.Modal.getInstance(document.getElementById("assetModal")).hide();
+            }).catch(err => console.error("Update failed:", err));
+        }
+
+        function confirmDelete(id) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Do you want to delete this asset?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel"
+            }).then(result => {
+                if (result.isConfirmed) deleteAsset(id);
+            });
+        }
+
+        function deleteAsset(id) {
+            fetch(`/deleteAssets/${id}`, {
+                method: "DELETE"
+            }).then(res => {
+                if (res.ok) fetchAssets();
+                else return res.text().then(text => { throw new Error(text); });
+            }).catch(err => console.error("Delete failed:", err));
+        }
+
+        function Logout() {
+            Swal.fire({
+                title: "Do you want to Sign out",
+                showCancelButton: true,
+                confirmButtonText: "Yes",
+            }).then((result) => {
+                if (result.isConfirmed) location.replace('/logout');
+            });
+        }
+
+        async function getSessionData() {
+            try {
+                const res = await fetch('/session');
+                if (!res.ok) throw new Error("Not logged in");
+
+                const session = await res.json();
+                document.getElementById('userrole').textContent = session.username;
+            } catch (err) {
+                console.error("Session error:", err);
+            }
+        }
+
+        getSessionData();
+    </script>
+</body>
+
+</html>
